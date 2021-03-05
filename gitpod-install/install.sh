@@ -51,10 +51,12 @@ data:
   privkey.pem: $PRIVKEY
 EOF
 
+cp gitpod-install/calico.yaml /var/lib/rancher/k3s/server/manifests/calico.yaml
 
 # Install and start k3s
-INSTALL_K3S_EXEC="server --disable traefik --node-label gitpod.io/main-node=true"
-export INSTALL_K3S_EXEC
+export INSTALL_K3S_EXEC="server --disable traefik --node-label gitpod.io/main-node=true --flannel-backend=none --disable-network-policy"
+export K3S_CLUSTER_SECRET=qWo6sn3VWERh3dBBQniPLTqtZzEHURsriJNhTqus
+export K3S_NODE_NAME=main
 curl -sSfL https://get.k3s.io | sh -
 
 
@@ -68,7 +70,10 @@ sed -i "s/\$GITPOD_GITHUB_CLIENT_SECRET/$GITPOD_GITHUB_CLIENT_SECRET/g" gitpod-i
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 if [ "$CHART_FROM_GIT" = "true" ]; then
     git clone https://github.com/gitpod-io/gitpod.git
-    cd gitpod/chart
+    cd gitpod
+    git reset --hard f45d4d70fe6749ca2ffe4cb3d3d2aa85faa6af15
+    cd chart
+    rm templates/*networkpolicy*.yaml # Remove network policy, temporary fix for: https://github.com/gitpod-com/gitpod/issues/4483
     helm dependency update
     helm install gitpod . --timeout 60m --values ../../gitpod-install/values.yaml
 else
