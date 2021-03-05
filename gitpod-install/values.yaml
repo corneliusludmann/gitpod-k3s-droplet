@@ -1,0 +1,73 @@
+version: main.533
+imagePrefix: eu.gcr.io/gitpod-core-dev/build/
+
+hostname: $DOMAIN
+
+components:
+  wsDaemon:
+    containerRuntime:
+      containerd:
+        socket: /run/k3s/containerd/containerd.sock
+      nodeRoots: 
+      - /var/lib
+      - /run/k3s/containerd/io.containerd.runtime.v1.linux
+      - /run/k3s/containerd/io.containerd.runtime.v2.task/k8s.io
+  workspace:
+    template:
+      spec:
+        dnsConfig: null
+        dnsPolicy: ClusterFirst
+  imageBuilder:
+    dindMtu: 1450
+
+  blobserver:
+    resources: null
+  contentService:
+    resources: null
+  dashboard:
+    resources: null
+  # dindResources:
+  #   requests: null
+  registryFacade:
+    resources: null
+  server:
+    resources: null
+  messagebus:
+    resources: null
+  wsManager:
+    resources: null
+  wsManagerBridge:
+    resources: null
+  wsScheduler:
+    resources: null
+  cerc:
+    resources: null
+  wsProxy:
+    resources: null
+
+resources:
+  default:
+    cpu: 1m
+    memory: 1Mi
+workspaceSizing:
+  requests: null
+  limits: null
+
+minio:
+  accessKey: fDhEkcdeTb8Hq9VNbVJPEPFNZn6AVDAVX7hc3453
+  secretKey: fU6fm63LX4Pm64DRq9dr4nB55dr6NX9eYo812342
+  resources:
+    requests:
+      memory: 1G
+
+authProviders:
+- id: "Public-GitHub"
+  host: "github.com"
+  type: "GitHub"
+  oauth:
+    clientId: "6336ac6113b9f068fd78"
+    clientSecret: "$GITPOD_GITHUB_CLIENT_SECRET"
+    callBackUrl: "https://gitpod.x.ludmann.name/auth/github.com/callback"
+    settingsUrl: "https://github.com/settings/applications/1490056"
+  description: ""
+  icon: ""

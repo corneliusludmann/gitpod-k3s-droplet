@@ -1,0 +1,21 @@
+image:
+  file: .gitpod.Dockerfile
+
+tasks:
+  - command: |
+      mkdir /home/gitpod/.ssh
+      echo "$DIGITALOCEAN_SSH_KEY" | base64 --decode > /home/gitpod/.ssh/id_rsa
+      echo "$DIGITALOCEAN_SSH_PUBKEY" | base64 --decode > /home/gitpod/.ssh/id_rsa.pub
+      chmod 600 /home/gitpod/.ssh/id_rsa*
+      echo "Host *" >> /home/gitpod/.ssh/config
+      echo "    StrictHostKeyChecking no" >> /home/gitpod/.ssh/config
+      echo "    UserKnownHostsFile /dev/null" >> /home/gitpod/.ssh/config
+      echo "    ConnectionAttempts 20" >> /home/gitpod/.ssh/config
+      echo "    ConnectTimeout 30" >> /home/gitpod/.ssh/config
+      echo ""
+      echo "Run ./digitalocean-droplet/setup.sh"
+      echo ""
+
+vscode:
+  extensions:
+    - timonwong.shellcheck@0.13.2:5ig4c8FBf8mrJVBiV8WA+A==
