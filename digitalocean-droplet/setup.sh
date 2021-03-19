@@ -9,6 +9,11 @@ DOMAIN_NAME=ludmann.name
 GITPOD_SUBDOMAIN=gitpod.x
 LEGO_VOLUME_ID=a705e73d-7d8f-11eb-84cd-0a58ac14d02e
 
+# if given, the helm chart of this commit is used
+# leave empty to use latest from charts.gitpod.io
+# https://github.com/gitpod-io/gitpod/releases/tag/v0.8.0-rc2
+GITPOD_COMMIT_ID=b0ee39619fc8026333beb5fd3fabf73706d29f55
+
 #DROPLET_SIZE=s-1vcpu-1gb
 DROPLET_SIZE=s-2vcpu-4gb
 
@@ -41,7 +46,7 @@ ssh "root@$IP" ./gitpod-install/install.sh \
     "letsencrypt@cornelius-ludmann.de" \
     "$DIGITALOCEAN_ACCESS_TOKEN" \
     "$GITPOD_GITHUB_CLIENT_SECRET" \
-    "true"
+    "$GITPOD_COMMIT_ID"
 
 mkdir -p ~/.kube
 scp "root@$IP:/etc/rancher/k3s/k3s.yaml" ~/.kube/config

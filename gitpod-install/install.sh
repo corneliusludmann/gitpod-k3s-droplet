@@ -7,7 +7,7 @@ LETS_ENCRYPT_EMAIL=$2
 DO_AUTH_TOKEN=$3
 export DO_AUTH_TOKEN
 GITPOD_GITHUB_CLIENT_SECRET=$4
-CHART_FROM_GIT=${5:-false}
+GITPOD_COMMIT_ID=${5:-}
 
 
 # Install lego Let's encrypt
@@ -68,10 +68,10 @@ curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bas
 sed -i "s/\$DOMAIN/$DOMAIN/g" gitpod-install/values.yaml
 sed -i "s/\$GITPOD_GITHUB_CLIENT_SECRET/$GITPOD_GITHUB_CLIENT_SECRET/g" gitpod-install/values.yaml
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-if [ "$CHART_FROM_GIT" = "true" ]; then
+if [ -n "$GITPOD_COMMIT_ID" ]; then
     git clone https://github.com/gitpod-io/gitpod.git
     cd gitpod
-    git reset --hard f45d4d70fe6749ca2ffe4cb3d3d2aa85faa6af15
+    git reset --hard "$GITPOD_COMMIT_ID"
     cd chart
     rm templates/*networkpolicy*.yaml # Remove network policy, temporary fix for: https://github.com/gitpod-com/gitpod/issues/4483
     helm dependency update
@@ -79,7 +79,7 @@ if [ "$CHART_FROM_GIT" = "true" ]; then
 else
     helm repo add gitpod https://charts.gitpod.io
     helm repo update
-    helm install gitpod gitpod/gitpod --timeout 60m --values ../../gitpod-install/values.yaml
+    helm install gitpod gitpod/gitpod --timeout 60m --values gitpod-install/values.yaml
 fi
 
 echo "done"
