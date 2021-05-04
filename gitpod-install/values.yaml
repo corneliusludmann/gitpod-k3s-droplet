@@ -1,6 +1,6 @@
 # version: main.533
 # imagePrefix: eu.gcr.io/gitpod-core-dev/build/
-version: 0.8.0-rc2
+version: 0.8.0
 
 hostname: $DOMAIN
 
