@@ -52,6 +52,11 @@ mysql:
   nodeSelector:
     gitpod.io/main-node: "true"
 
+rabbitmq:
+  auth:
+    username: gitpod
+    password: gitpod
+
 authProviders:
 - id: "Public-GitHub"
   host: "github.com"
