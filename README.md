@@ -17,3 +17,8 @@ The following environement variables are needed:
 | `GITPOD_GITHUB_CLIENT_SECRET`      | GitHub Client Secret of the Gitpod app                    |
 
 You also need a [Digital Ocean account](https://digitalocean.com) with a configured [domain](https://cloud.digitalocean.com/networking/domains) (here `ludmann.name`) and [SSH key](https://cloud.digitalocean.com/account/security).
+
+## How to change/update Gitpod version
+
+- Change `version` in `gitpod-install/values.yaml`.
+- Change `GITPOD_COMMIT_ID` in `digitalociean-droplet/setup.sh`
