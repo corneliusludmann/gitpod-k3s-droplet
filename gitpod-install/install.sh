@@ -27,11 +27,13 @@ else
     lego --email "$LETS_ENCRYPT_EMAIL" --accept-tos --dns digitalocean -d "$DOMAIN" -d "*.$DOMAIN" -d "*.ws.$DOMAIN" run
 fi
 mkdir certs
+cp ".lego/certificates/$DOMAIN.crt" certs/cert.pem
 cp ".lego/certificates/$DOMAIN.crt" certs/fullchain.pem
 cp ".lego/certificates/$DOMAIN.issuer.crt" certs/chain.pem
 cp ".lego/certificates/$DOMAIN.key" certs/privkey.pem
 openssl dhparam -out certs/dhparams.pem 2048
 
+CERT=$(base64 --wrap=0 < certs/cert.pem)
 CHAIN=$(base64 --wrap=0 < certs/chain.pem)
 DHPARAMS=$(base64 --wrap=0 < certs/dhparams.pem)
 FULLCHAIN=$(base64 --wrap=0 < certs/fullchain.pem)
@@ -45,6 +47,7 @@ metadata:
   labels:
     app: gitpod
 data:
+  cert.pem: $CERT
   chain.pem: $CHAIN
   dhparams.pem: $DHPARAMS
   fullchain.pem: $FULLCHAIN
