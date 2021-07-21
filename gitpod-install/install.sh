@@ -8,6 +8,7 @@ DO_AUTH_TOKEN=$3
 export DO_AUTH_TOKEN
 GITPOD_GITHUB_CLIENT_SECRET=$4
 GITPOD_COMMIT_ID=${5:-}
+GITPOD_CHART_VERSION=
 
 
 # Install lego Let's encrypt
@@ -27,15 +28,9 @@ else
     lego --email "$LETS_ENCRYPT_EMAIL" --accept-tos --dns digitalocean -d "$DOMAIN" -d "*.$DOMAIN" -d "*.ws.$DOMAIN" run
 fi
 mkdir certs
-cp ".lego/certificates/$DOMAIN.crt" certs/cert.pem
 cp ".lego/certificates/$DOMAIN.crt" certs/fullchain.pem
-cp ".lego/certificates/$DOMAIN.issuer.crt" certs/chain.pem
 cp ".lego/certificates/$DOMAIN.key" certs/privkey.pem
-openssl dhparam -out certs/dhparams.pem 2048
 
-CERT=$(base64 --wrap=0 < certs/cert.pem)
-CHAIN=$(base64 --wrap=0 < certs/chain.pem)
-DHPARAMS=$(base64 --wrap=0 < certs/dhparams.pem)
 FULLCHAIN=$(base64 --wrap=0 < certs/fullchain.pem)
 PRIVKEY=$(base64 --wrap=0 < certs/privkey.pem)
 mkdir -p /var/lib/rancher/k3s/server/manifests/
@@ -47,11 +42,9 @@ metadata:
   labels:
     app: gitpod
 data:
-  cert.pem: $CERT
-  chain.pem: $CHAIN
-  dhparams.pem: $DHPARAMS
-  fullchain.pem: $FULLCHAIN
-  privkey.pem: $PRIVKEY
+  tls.crt: $FULLCHAIN
+  tls.cert: $FULLCHAIN
+  tls.key: $PRIVKEY
 EOF
 
 cp gitpod-install/calico.yaml /var/lib/rancher/k3s/server/manifests/calico.yaml
@@ -76,13 +69,16 @@ if [ -n "$GITPOD_COMMIT_ID" ]; then
     cd gitpod
     git reset --hard "$GITPOD_COMMIT_ID"
     cd chart
-    rm templates/*networkpolicy*.yaml # Remove network policy, temporary fix for: https://github.com/gitpod-com/gitpod/issues/4483
     helm dependency update
     helm install gitpod . --timeout 60m --values ../../gitpod-install/values.yaml
 else
     helm repo add gitpod https://charts.gitpod.io
     helm repo update
-    helm install gitpod gitpod/gitpod --timeout 60m --values gitpod-install/values.yaml
+    if [ -n "$GITPOD_CHART_VERSION" ]; then
+        helm install gitpod gitpod/gitpod --timeout 60m --values gitpod-install/values.yaml --version "$GITPOD_CHART_VERSION"
+    else
+        helm install gitpod gitpod/gitpod --timeout 60m --values gitpod-install/values.yaml
+    fi
 fi
 
 echo "done"
